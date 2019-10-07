@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Route } from "react-router-dom";
 import data from "./data";
 
@@ -12,15 +12,26 @@ import { CartContext } from "./contexts/CartContext";
 
 function App() {
   const [products] = useState(data);
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(
+    JSON.parse(window.localStorage.getItem("cart")) || []
+  );
 
   const addItem = item => {
     setCart([...cart, item]);
   };
 
+  const removeItem = id => {
+    const itemsLeft = cart.filter(item => item.id !== id);
+    setCart(itemsLeft);
+  };
+
+  useEffect(() => {
+    window.localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
+
   return (
     <ProductsContext.Provider value={{ products, addItem }}>
-      <CartContext.Provider value={{ cart }}>
+      <CartContext.Provider value={{ cart, removeItem }}>
         <div className="App">
           <Navigation cart={cart} />
           {/* Routes */}
